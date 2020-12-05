@@ -3,10 +3,18 @@ package main
 import (
 	"errors"
 	"strconv"
+	"sync"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/recover"
 )
+
+func markPrime(primes []bool, i int, n int, wg *sync.WaitGroup) {
+	defer wg.Done()
+	for j := i * i; j <= n; j += i {
+		primes[j] = false
+	}
+}
 
 func getPrime(n int) (int, error) {
 	if n < 1 {
@@ -20,11 +28,12 @@ func getPrime(n int) (int, error) {
 	for i := 1; i <= n; i++ {
 		primes[i] = true
 	}
+	var wg sync.WaitGroup
 	for i := 2; i*i <= n; i++ {
-		for j := i * i; j <= n; j += i {
-			primes[j] = false
-		}
+		wg.Add(1)
+		go markPrime(primes, i, n, &wg)
 	}
+	wg.Wait()
 	var result int
 	for i := n; i != 2; i-- {
 		if primes[i] {

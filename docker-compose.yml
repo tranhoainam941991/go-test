@@ -1,8 +1,0 @@
-version: "3.0"
-
-services:
-    go-app:
-        image: go-test:latest
-        ports: 
-            - 3000:3000
-        entrypoint: /app/m
